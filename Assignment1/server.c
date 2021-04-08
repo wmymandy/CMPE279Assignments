@@ -37,6 +37,8 @@ int main(int argc, char const *argv[])
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons( PORT );
 
+    printf("attached socket to port %d\n", PORT);
+
     // Forcefully attaching socket to the port 80
     if (bind(server_fd, (struct sockaddr *)&address,
                                  sizeof(address))<0)
@@ -55,9 +57,26 @@ int main(int argc, char const *argv[])
         perror("accept");
         exit(EXIT_FAILURE);
     }
-    valread = read( new_socket , buffer, 1024);
-    printf("%s\n",buffer );
-    send(new_socket , hello , strlen(hello) , 0 );
-    printf("Hello message sent\n");
+
+    pid_t cid = fork();
+    if (cid == 0)
+    {
+        // Process under children process
+        setuid(2);
+        valread = read(new_socket, buffer, 1024);
+        printf("%s\n",buffer);
+        send(new_socket, hello, strlen(hello), 0);
+        printf("Hello message sent\n");
+    }
+    else if (cid < 0)
+    {
+        perror("fail to create child process\n");
+        exit(EXIT_FAILURE);
+    }
+    else
+    {
+        printf("children process created\n");
+    }
+
     return 0;
 }
