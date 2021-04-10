@@ -62,7 +62,8 @@ int main(int argc, char const *argv[])
     if (cid == 0)
     {
         // Process under children process
-        setuid(2);
+        // Drop privileges to "nobody" user
+        setuid(65534);
         valread = read(new_socket, buffer, 1024);
         printf("%s\n",buffer);
         send(new_socket, hello, strlen(hello), 0);
