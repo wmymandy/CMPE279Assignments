@@ -61,12 +61,39 @@ int main(int argc, char const *argv[])
     pid_t cid = fork();
     if (cid == 0)
     {
-        // Process under children process
-        setuid(2);
-        valread = read(new_socket, buffer, 1024);
-        printf("%s\n",buffer);
-        send(new_socket, hello, strlen(hello), 0);
-        printf("Hello message sent\n");
+        // // Process under children process
+ //        // Drop privileges to "nobody" user
+ //        if (setuid(65534) != 0) {
+ //            perror("fail to drop privileges\n");
+ //            exit(EXIT_FAILURE);
+ //        }
+ //        // Check if privileges dropped permanently
+ //        if (setuid(0) != -1) {
+ //            perror("privileges is able to restore\n");
+ //            exit(EXIT_FAILURE);
+ //        }
+		
+		// if(setuid(65534) < 0){
+// 			perror("fail to drop privileges\n");
+// 			exit(EXIT_FAILURE);
+// 		}
+		// setuid(65534);
+		//printf("privileges drops");
+		
+		char fdbuff[30];
+		sprintf(fdbuff, "%d", new_socket);
+		char* execbuff[] = {"./server2", fdbuff, NULL};
+		if(execvp(execbuff[0], execbuff)< 0){
+			perror("execvp failed");
+			exit(EXIT_FAILURE);
+		}
+		printf("execvp...\n");
+        // valread = read(new_socket, buffer, 1024);
+//
+//         printf("%s\n",buffer);
+//         send(new_socket, hello, strlen(hello), 0);
+//         printf("Hello message sent\n");
+		printf("children process is done\n");
     }
     else if (cid < 0)
     {
@@ -75,7 +102,7 @@ int main(int argc, char const *argv[])
     }
     else
     {
-        printf("children process created\n");
+        printf("parent process is done\n");
     }
 
     return 0;
