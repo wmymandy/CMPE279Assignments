@@ -62,7 +62,18 @@ int main(int argc, char const *argv[])
     if (cid == 0)
     {
         // Process under children process
-        setuid(2);
+        // Drop privileges to "nobody" user
+        if (setuid(65534) != 0) {
+            perror("fail to drop privileges\n");
+            exit(EXIT_FAILURE);
+        }
+
+        // Check if privileges dropped permanently
+        if (setuid(0) != -1) {
+            perror("privileges is able to restore\n");
+            exit(EXIT_FAILURE);
+        }
+
         valread = read(new_socket, buffer, 1024);
         printf("%s\n",buffer);
         send(new_socket, hello, strlen(hello), 0);
