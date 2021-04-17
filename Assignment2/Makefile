@@ -1,0 +1,10 @@
+CC=gcc
+
+makerun:
+	make clean
+	$(CC) server.c -o server
+	$(CC) client.c -o client
+
+clean:
+	rm -f server
+	rm -f client
