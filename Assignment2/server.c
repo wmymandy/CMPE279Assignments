@@ -8,6 +8,7 @@
 #include <string.h>
 
 #define PORT 8080
+#define NO_BODY 65534
 int main(int argc, char const *argv[])
 {
     int server_fd, new_socket, valread;
@@ -18,7 +19,7 @@ int main(int argc, char const *argv[])
     char *hello = "Hello from server";
 
     // When re-exec itself
-    if (getuid() != 0) {
+    if (getuid() == NO_BODY && argc == 1) {
         // execvp will not end if we print any thing  
         new_socket = atoi(argv[0]);
         valread = read(new_socket, buffer, 1024);
@@ -75,7 +76,7 @@ int main(int argc, char const *argv[])
     {
         // Process under children process
         // Drop privileges to "nobody" user
-        if (setuid(65534) != 0) {
+        if (setuid(NO_BODY) != 0) {
             perror("fail to drop privileges\n");
             exit(EXIT_FAILURE);
         }
